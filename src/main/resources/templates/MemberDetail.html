@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MemberDetail</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: auto;
+        max-width: 80%; /* 화면 너비의 80%로 제한 */
+    }
+
+    th, td {
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2a9d8f;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #21867a;
+    }
+</style>
+<body>
+    <h2>회원 정보</h2>
+
+<table>
+    <tr>
+        <th>id</th>
+        <td th:text="${MemberDTO.id}"></td>
+    </tr>
+    <tr>
+        <th>닉네임</th>
+        <td th:text="${MemberDTO.nickname}"></td>
+    </tr>
+    <tr>
+        <th>유저 이름</th>
+        <td th:text="${MemberDTO.username}"></td>
+    </tr>
+<!--    <tr>-->
+<!--        <th>비밀번호</th>-->
+<!--        <td th:text="${MemberDTO.memberPassword}"></td>-->
+<!--    </tr>-->
+</table>
+<button onclick="MemberListReq()">돌아가기</button>
+<button onclick="MemberUpdateReq()">수정</button>
+<button onclick="MemberDeleteReq()">삭제</button>
+</body>
+
+<script th:inline="javascript">
+
+    const MemberListReq = () => {
+        location.href = "/member/list";
+    }
+
+    const MemberUpdateReq = () => {
+        location.href = `/member/update/[[${MemberDTO.id}]]`;
+    }
+
+    const MemberDeleteReq = () => {
+        location.href = `/member/delete/[[${MemberDTO.id}]]`;
+    }
+
+</script>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MemberLogin</title>
+    <style>
+        body {
+           font-family: Arial, sans-serif;
+           background-color: #f0f8ff;
+           text-align: center;
+           margin: 0;
+           padding: 0;
+           height: 100vh;
+           display: flex;
+           flex-direction: column;
+           justify-content: center;
+           align-items: center;
+       }
+
+       form {
+           background-color: #ffffff;
+           padding: 20px;
+           border-radius: 10px;
+           box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+       }
+
+       label {
+           display: block;
+           margin: 10px 0 5px;
+       }
+
+       input[type="text"], input[type="password"] {
+           width: calc(100% - 22px);
+           padding: 10px;
+           margin: 10px 0;
+           border: 1px solid #ccc;
+           border-radius: 5px;
+           box-sizing: border-box;
+       }
+
+       input[type="submit"] {
+           padding: 10px 20px;
+           border: none;
+           border-radius: 5px;
+           background-color: #2a9d8f;
+           color: white;
+           cursor: pointer;
+           margin-top: 10px;
+       }
+
+       input[type="submit"]:hover {
+           background-color: #21867a;
+       }
+
+       p {
+           color: red;
+           margin-top: 10px;
+       }
+    </style>
+</head>
+<body>
+    <form action="/login" method="post">
+        유저 이름 : <input type="text" name="username"><br>
+        비밀번호 : <input type="text" name="password"><br>
+        <input type="submit" value="로그인">
+    </form>
+    <p style="color: red;">
+        <!-- memberController에서 모델로 감싸서 받아온 에러 메시지 표시 -->
+        <!-- 만약 에러 메시지 있다면 표시. 없다면 출력 X-->
+        <span th:if="${errorMessage}" th:text="${errorMessage}"></span>
+    </p>
+</body>
+</html>

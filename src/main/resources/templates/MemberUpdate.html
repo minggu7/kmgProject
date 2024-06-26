@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MemberUpdate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2a9d8f;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #21867a;
+        }
+    </style>
+</head>
+<body>
+<form th:action="@{|/member/update/${MemberDTO.id}|}" method="post" name="updateForm">
+    <input type="hidden" name="id" th:value="${MemberDTO.id}">
+    닉네임 : <input type="text" name="nickname" th:value="${MemberDTO.nickname}" readonly><br>
+    유저 이름 : <input type="text" name="username" th:value="${MemberDTO.username}"><br>
+    변경 할 비밀번호 : <input type="text" name="password"><br>
+    기존 비밀번호 확인 : <input type="password" name="oldPassword" id ="member-pass"><br>
+    <input type="submit" value="수정" onclick="Member_Update()">
+</form>
+</body>
+
+<script th:inline="javascript">
+    const Member_Update = () =>{
+    const memberPass = document.getElementById("member-pass").value;
+    const passDB = [[${MemberDTO.password}]];
+    if(memberPass == passDB){
+      updateForm.submit();
+    }else{
+        location.href = "/member/[[${MemberDTO.id}]]";
+        alert("비밀번호가 틀립니다! 업데이트 실패");
+        }
+    }
+</script>
+</html>

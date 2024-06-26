@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MemberSignUp</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f0f8ff;
+          text-align: center;
+          margin: 0;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+      }
+
+      form {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      input {
+          width: 100%;
+          padding: 10px;
+          margin: 10px 0;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+      }
+
+      input[type="submit"] {
+          background-color: #2a9d8f;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+
+      input[type="submit"]:hover {
+          background-color: #21867a;
+      }
+
+        p {
+           color: red;
+           margin-top: 10px;
+       }
+    </style>
+</head>
+<body>
+    <form action="/SignUp" method="post" onsubmit="return validateForm()">
+        유저 이름 : <input type="text" name="username"> <br>
+        비밀번호 : <input type="password" name="password" id="password"> <br>
+        비밀번호 확인 : <input type="password" id="confirmPassword"> <br>
+        닉네임 : <input type="text" name="nickname">
+        <p style="color: red;">
+            <!-- 만약 에러 메시지 있다면 표시. 없다면 출력 X-->
+            <span th:if="${errorMessage}" th:text="${errorMessage}"></span>
+        </p>
+        <input type="submit" value="제출">
+    </form>
+</body>
+<script>
+    function validateForm(){
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if(password !== confirmPassword){
+            alert('비밀번호가 일치하지 않습니다.');
+            return false;
+        }
+        return true;
+    }
+</script>
+</html>

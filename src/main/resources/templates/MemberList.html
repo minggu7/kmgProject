@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MemberList</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 75%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>id</th>
+            <th>닉네임</th>
+            <th>유저 이름</th>
+        </tr>
+        <tr th:each="Member: ${MemberList}">
+            <td th:text="${Member.id}"></td>
+            <td th:text="${Member.nickname}"></td>
+            <td>
+                <a th:text="${Member.username}" th:href="@{|/member/${Member.id}|}"></a>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
