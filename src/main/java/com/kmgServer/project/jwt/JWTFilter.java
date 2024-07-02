@@ -2,6 +2,7 @@ package com.kmgServer.project.jwt;
 
 import com.kmgServer.project.dto.CustomUserDetails;
 import com.kmgServer.project.dto.MemberDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,55 +14,54 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorization = request.getHeader("Authorization");
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            System.out.println("token null");
+        String accessToken = request.getHeader("access");
+
+        if(accessToken == null){
             filterChain.doFilter(request, response);
-            return; // 조건이 해당되면 메소드 종료 (필수)
+            return;
         }
 
-        System.out.println("authorization now");
+        //토큰 만료 여부 확인. 만료시 다음 필터로 넘기지 않음.
 
-        String token = authorization.split(" ")[1];
+        try {
+            jwtUtil.isExpired(accessToken);
+        }catch (ExpiredJwtException e){//해당 토큰이 만료 되었다면
+            PrintWriter writer = response.getWriter();
+            writer.print("access token expired");
 
-        // 토큰 소멸 시간 검증
-        if (jwtUtil.isExpired(token)) {
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
-            return; // 조건이 해당되면 메소드 종료 (필수)
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
-        String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
+        //카테고리를 통해 엑세스 토큰인지 확인
+        String category = jwtUtil.getCategory(accessToken);
 
-        System.out.println(username + " " + role);
+        if(!category.equals("access")){//액세스 토큰이 아닐 경우
+            PrintWriter writer = response.getWriter();
+            writer.print("invalid access token");
 
-        if (username == null || role == null) {
-            System.out.println("Invalid token");
-            filterChain.doFilter(request, response);
-            return; // 조건이 해당되면 메소드 종료 (필수)
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
+
+        //사용자 정보 획득하기
+        String username = jwtUtil.getUsername(accessToken);
+        String role = jwtUtil.getRole(accessToken);
 
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setUsername(username);
-        // SecurityContextHolder에 정확한 비밀번호를 넣을 필요는 없음. token 정보에 없어서 매번 DB에 요청해야 함. 임시적으로 생성만 해주자
-        memberDTO.setPassword("temppassword");
         memberDTO.setRole(role);
-
-        // UserDetails에 만들어진 회원 정보 객체를 담자
         CustomUserDetails customUserDetails = new CustomUserDetails(memberDTO);
 
-        // 만든 정보(customUserDetails)를 통해 UsernamePasswordAuthenticationToken 을 생성해주자.
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-
-        // 넘겨주기
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);

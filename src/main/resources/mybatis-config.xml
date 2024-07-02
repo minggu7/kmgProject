@@ -4,5 +4,6 @@
 <configuration>
     <typeAliases>
         <typeAlias type="com.kmgServer.project.dto.MemberDTO" alias="Member"/>
+        <typeAlias type="com.kmgServer.project.dto.RefreshDTO" alias="Refresh"/>
     </typeAliases>
 </configuration>
