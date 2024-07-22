@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>MemberUpdate</title>
+    <title>Member Update</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,6 @@
             flex-direction: column;
             align-items: center;
         }
-
         form {
             background-color: #fff;
             padding: 20px;
@@ -23,8 +22,7 @@
             max-width: 400px;
             width: 100%;
         }
-
-        input[type="text"], input[type="password"] {
+        input[type="text"], input[type="password"], input[type="submit"] {
             width: calc(100% - 20px);
             padding: 10px;
             margin: 10px 0;
@@ -32,43 +30,74 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
-
         input[type="submit"] {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
             background-color: #2a9d8f;
             color: white;
             cursor: pointer;
             margin-top: 10px;
         }
-
         input[type="submit"]:hover {
             background-color: #21867a;
+        }
+        p.error {
+            color: red;
         }
     </style>
 </head>
 <body>
-<form th:action="@{|/member/update/${MemberDTO.id}|}" method="post" name="updateForm">
+<h1>Update Member</h1>
+<form th:action="@{|/member/update/${MemberDTO.id}|}" method="post" id="updateForm" onsubmit="validateAndSubmit(event)">
     <input type="hidden" name="id" th:value="${MemberDTO.id}">
-    닉네임 : <input type="text" name="nickname" th:value="${MemberDTO.nickname}" readonly><br>
-    유저 이름 : <input type="text" name="username" th:value="${MemberDTO.username}"><br>
-    변경 할 비밀번호 : <input type="text" name="password"><br>
-    기존 비밀번호 확인 : <input type="password" name="oldPassword" id ="member-pass"><br>
-    <input type="submit" value="수정" onclick="Member_Update()">
+    <label for="nickname">닉네임:</label>
+    <input type="text" name="nickname" th:value="${MemberDTO.nickname}" readonly><br>
+    <label for="username">유저 이름:</label>
+    <input type="text" name="username" th:value="${MemberDTO.username}" readonly><br>
+    <label for="password">변경 할 비밀번호:</label>
+    <input type="text" name="password"><br>
+    <label for="oldPassword">기존 비밀번호 확인:</label>
+    <input type="password" name="oldPassword" id="member-pass"><br>
+    <input type="submit" value="수정">
 </form>
-</body>
+<p class="error">
+    <span id="error-message" th:if="${errorMessage}" th:text="${errorMessage}"></span>
+</p>
+<script>
+    function validateAndSubmit(event) {
+        event.preventDefault(); // 폼의 기본 동작(서버로 요청)을 막음
 
-<script th:inline="javascript">
-    const Member_Update = () =>{
-    const memberPass = document.getElementById("member-pass").value;
-    const passDB = [[${MemberDTO.password}]];
-    if(memberPass == passDB){
-      updateForm.submit();
-    }else{
-        location.href = "/member/[[${MemberDTO.id}]]";
-        alert("비밀번호가 틀립니다! 업데이트 실패");
-        }
+        const oldPassword = document.getElementById("member-pass").value;
+        const username = document.querySelector('input[name="username"]').value;
+        const form = document.getElementById("updateForm");
+        const id = document.querySelector('input[name="id"]').value; // id 값 가져오기
+
+        console.log('Request Payload:', JSON.stringify({ oldPassword, username })); // 요청 데이터 확인
+
+        fetch('/member/verify-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                oldPassword: oldPassword,
+                username: username
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response Data:', data); // 응답 데이터 확인
+            if (data.valid) {
+                alert("비밀번호가 변경 되었습니다.");
+                form.submit(); // 응답이 정상적이면 폼 제출
+            } else {
+                alert("비밀번호가 틀립니다! 업데이트 실패");
+                location.href = "/member/detail/" + id; // id 값 포함하여 리디렉션
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+        });
     }
 </script>
+</body>
 </html>

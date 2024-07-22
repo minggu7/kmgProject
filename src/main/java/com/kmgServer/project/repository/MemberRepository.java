@@ -57,4 +57,6 @@ public class MemberRepository {
     public MemberDTO findByUsername(String username) {
         return sql.selectOne("Member.findByUsername", username);
     }
+
+
 }

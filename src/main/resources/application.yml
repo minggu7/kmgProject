@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8102
 
 # database 연동 설정
 spring:

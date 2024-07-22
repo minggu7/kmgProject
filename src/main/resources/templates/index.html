@@ -5,44 +5,136 @@
     <title>Home</title>
     <style>
         body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: 5px;
-}
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 5px;
+        }
 
-h2 {
-    color: #2a9d8f;
-    margin: 20px 0;
-}
+        h2 {
+            color: #2a9d8f;
+            margin: 20px 0;
+        }
 
-a {
-    margin: 5px;
-    padding: 10px;
-    text-decoration: none;
-    color: white;
-    background-color: #2a9d8f;
-    border-radius: 5px;
-    display: inline-block;
-}
+        a {
+            margin: 5px;
+            padding: 10px;
+            text-decoration: none;
+            color: white;
+            background-color: #2a9d8f;
+            border-radius: 5px;
+            display: inline-block;
+        }
 
-a:hover {
-    background-color: #21867a;
-}
+        a:hover {
+            background-color: #21867a;
+        }
     </style>
 </head>
 
 <body>
-     <h2>MG 페이지에 오신것을 환영 합니다~</h2>
-     <a href="/SignUp">회원가입</a>
-     <a href="/login">로그인</a><br>
-     <a href="/member/list">회원 목록</a>
+<h2>MG 페이지에 오신 것을 환영합니다~</h2>
+<a href="/SignUp">회원가입</a>
+<a href="/login">로그인</a><br>
+<a href="#" onclick="redirectToMemberList(event)">회원 목록</a>
+<button onclick="logoutUser()">로그아웃</button>
+
+
+<script>
+    function redirectToMemberList(event) {
+        event.preventDefault();  // 기본 이벤트 방지
+
+        let accessToken = localStorage.getItem('login-token');  // 로컬 스토리지에서 액세스 토큰 가져오기
+
+        if (!accessToken) {
+            console.error('Access token not found in localStorage.');
+            return;
+        }
+
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`  // 헤더에 액세스 토큰 추가
+            }
+        };
+
+        fetchMemberList(requestOptions);
+    }
+
+    function fetchMemberList(requestOptions) {
+        fetch('/api/member/list', requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        return reissueToken().then(newAccessToken => {
+                            if (!newAccessToken) {
+                                console.error('Failed to reissue token.');
+                                throw new Error('Failed to reissue token.');
+                            }
+                            console.log('New access token:', newAccessToken);
+                            localStorage.setItem('login-token', newAccessToken);
+                            requestOptions.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                            return fetchMemberList(requestOptions);
+                        });
+                    } else {
+                        throw new Error('Network response was not ok1.');
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Member list data:', data);
+                window.location.href = '/member/list';
+            })
+            .catch(error => {
+                console.error('오류 발생:', error);
+            });
+    }
+
+    function reissueToken() {
+        return fetch('/reissue', { method: 'POST', credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'  // POST 요청에 Content-Type 헤더 추가
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to reissue token.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const newAccessToken = data.access; // JSON 응답에서 access 키의 값을 가져옴
+                console.log('New access token:', newAccessToken);
+                return newAccessToken;
+            })
+            .catch(error => {
+                console.error('Failed to reissue token:', error);
+                throw error;
+            });
+    }
+
+    function logoutUser() {
+        fetch('/logout', { method: 'POST', credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Logout failed.');
+                }
+                localStorage.removeItem('login-token');
+                window.location.href = '/';
+            })
+            .catch(error => {
+                console.error('오류 발생:', error);
+            });
+    }
+</script>
+
 </body>
 </html>

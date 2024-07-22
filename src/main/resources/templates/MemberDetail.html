@@ -73,6 +73,7 @@
 <button onclick="MemberListReq()">돌아가기</button>
 <button onclick="MemberUpdateReq()">수정</button>
 <button onclick="MemberDeleteReq()">삭제</button>
+<button onclick="HomeReq()">홈 페이지</button> <!-- 홈 페이지 버튼 추가 -->
 </body>
 
 <script th:inline="javascript">
@@ -87,6 +88,10 @@
 
     const MemberDeleteReq = () => {
         location.href = `/member/delete/[[${MemberDTO.id}]]`;
+    }
+
+    const HomeReq = () => {  // 홈 페이지로 이동하는 함수 추가
+        location.href = "/";
     }
 
 </script>

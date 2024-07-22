@@ -69,8 +69,8 @@ public class SecurityConfig {
         http.httpBasic((auth) -> auth.disable());
 
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/", "/SignUp", "/reissue").permitAll()
-                .requestMatchers("/member/{id}", "/member/update/{id}", "/member/delete/{id}", "/member/list").hasRole("ADMIN")
+                .requestMatchers("/login", "/", "/SignUp", "/reissue", "/member/list", "/member/detail/**", "/member/update/**","/member/delete/**", "/member/verify-password").permitAll()
+//                .requestMatchers( "/member/update/{id}", "/member/delete/{id}").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);

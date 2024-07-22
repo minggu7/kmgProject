@@ -22,22 +22,27 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = request.getHeader("access");
+        String accessToken = request.getHeader("Authorization");
 
-        if(accessToken == null){
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // 공백 제거 후 토큰 검증
+        accessToken = accessToken.substring(7); // "Bearer " 부분 제거
+        accessToken = accessToken.trim(); // 앞뒤 공백 제거
+
         //토큰 만료 여부 확인. 만료시 다음 필터로 넘기지 않음.
 
-        try {
-            jwtUtil.isExpired(accessToken);
-        }catch (ExpiredJwtException e){//해당 토큰이 만료 되었다면
-            PrintWriter writer = response.getWriter();
-            writer.print("access token expired");
-
+        if (jwtUtil.isExpired(accessToken)) {
+            // 토큰이 만료된 경우 처리
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json"); // 응답 타입 설정 (선택 사항)
+            PrintWriter writer = response.getWriter();
+            writer.print("{\"error\":\"access token expired\"}");
+            writer.flush();
+            writer.close();
             return;
         }
 
@@ -55,6 +60,8 @@ public class JWTFilter extends OncePerRequestFilter {
         //사용자 정보 획득하기
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
+
+        System.out.println("clear JWTFilter" + username + " "  + role);
 
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setUsername(username);

@@ -17,9 +17,15 @@ public class CustomMemberDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
         MemberDTO memberDTO = memberRepository.findByUsername(username);
 
+        if(memberDTO == null){
+            throw new UsernameNotFoundException("User not found");
+        }
+
         if(memberDTO != null){
             //사용자 정보 있다면
+            System.out.println("memberDTO = " + memberDTO);
             return new CustomUserDetails(memberDTO);
+
         }
 
         return null;
